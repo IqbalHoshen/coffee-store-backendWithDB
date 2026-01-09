@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors());
-app.use(express());
+app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.COFFEE_DB_BUCKET}:${process.env.SECRET_KEY}@cluster0.l72lyls.mongodb.net/?appName=Cluster0`;
 
@@ -21,6 +21,18 @@ const client = new MongoClient(uri, {
 });
 async function run() {
   try {
+    const coffeeStoreDB = client.db("coffee-store").collection("addCoffee");
+
+    app.post("/add/coffee", async (req, res) => {
+      const result = await coffeeStoreDB.insertOne(req.body);
+      res.send(result);
+    });
+    app.get("/get/coffee", async (req, res) => {
+      const cursor = coffeeStoreDB.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
