@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const express = require("express");
@@ -22,14 +22,23 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const coffeeStoreDB = client.db("coffee-store").collection("addCoffee");
-
+    // Define the API routes here
+    app.get("/get/coffee", async (req, res) => {
+      const cursor = coffeeStoreDB.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // Post API to add coffee data
     app.post("/add/coffee", async (req, res) => {
       const result = await coffeeStoreDB.insertOne(req.body);
       res.send(result);
     });
-    app.get("/get/coffee", async (req, res) => {
-      const cursor = coffeeStoreDB.find();
-      const result = await cursor.toArray();
+
+    // Delete API to remove coffee data by ID
+    app.delete("/delete/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeStoreDB.deleteOne(query);
       res.send(result);
     });
 
