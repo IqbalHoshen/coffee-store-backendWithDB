@@ -28,9 +28,32 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    // Get API to fetch coffee data by ID
+    app.get("/get/coffee/:id", async (req, res) => {
+      const { id } = req.params;
+
+      const result = await coffeeStoreDB.findOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
+    });
     // Post API to add coffee data
     app.post("/add/coffee", async (req, res) => {
       const result = await coffeeStoreDB.insertOne(req.body);
+      res.send(result);
+    });
+    // Update API to modify coffee data by ID
+    app.put("/update/coffee/:id", async (req, res) => {
+      const { id } = req.params;
+      const updatedCoffee = req.body;
+      const result = await coffeeStoreDB.updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: updatedCoffee,
+        }
+      );
+
       res.send(result);
     });
 
